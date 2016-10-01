@@ -1,22 +1,42 @@
-playing = T
-rows = 10
-cols = 10
-level = 1
-player = c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-crystal = c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-enemies = list()
-#ensure player is not on top of crystal
-while(identical(player, crystal))c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-#generate enemies based on level
-enemies <- list()
-for (i in 1:level) {
-  enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-  while(identical(enemies[[i]], player) | identical(enemies[[i]], crystal))enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-}
-
+#Global variables
+playing <-  T
+rows <-  10
+cols <-  10
+level <-  1
 playerChar = "X"
 crystalChar = "*"
 enemyChar = "^"
+player <- vector("integer")
+crystal <- vector("integer")
+enemies <- list()
+
+resetPlayer <- function()
+{
+  return(c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1)))
+}
+
+resetCrystal <- function()
+{
+  crystal <-  c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
+  #ensure player is not on top of crystal
+  while(identical(player, crystal))crystal <-c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
+  return(crystal)
+}
+
+resetEnemies <- function()
+{
+  #generate enemies based on level
+  enemies <- list()
+  for (i in 1:level) {
+    enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
+    while(identical(enemies[[i]], player) | identical(enemies[[i]], crystal))enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
+  }
+  return(enemies)
+}
+
+player <- resetPlayer()
+crystal <- resetCrystal()
+enemies <- resetEnemies()
 
 while(playing)
 {
@@ -36,7 +56,7 @@ while(playing)
   print("Your player, X, must capture the crystal, *")
   print("Direction? U, D, L, R to move. T to teleport. Q to quit")
   input <- readline()
-  if(input == "Q")playing <- F
+  if(input == "Q"){playing <- F;break}
   else if(input == "U"){if(player[1] > 1)player[1] <- as.integer(player[1] - 1)}
   else if(input == "D"){if(player[1] < rows)player[1] <- as.integer(player[1] + 1)}
   else if(input == "L"){if(player[2] > 1)player[2] <- as.integer(player[2] - 1)}
@@ -61,15 +81,8 @@ while(playing)
   #Check level complete
   if(identical(player, crystal)){
     level = level + 1
-    #re-generate entities based on level
-    player = c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-    crystal = c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-    #ensure player is not on top of crystal
-    while(identical(player, crystal))c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-    enemies <- list()
-    for (i in 1:level) {
-      enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-      while(identical(enemies[[i]], player) | identical(enemies[[i]], crystal))enemies[[i]] <- c(as.integer(runif(1) * rows + 1), as.integer(runif(1) * cols + 1))
-    }
+    player <- resetPlayer()
+    crystal <- resetCrystal()
+    enemies <- resetEnemies()
   }
 }
